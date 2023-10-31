@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the python web application..'
+                bat 'docker build -t pyhton:v1 .'
+                // You can add more build commands here if necessary
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing the built Docker image...'
+                // Run tests inside the Docker container
+                // bat 'docker run -d -p my-web-app:latest ' // Replace with your test command
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the python web application...'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                        def customImage = docker.build('arundhathitp/python:v1', '.')
+                        customImage.push()
+                    }
+                }
+            }
+        }
+    }
+}
